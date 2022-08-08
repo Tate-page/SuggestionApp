@@ -1,0 +1,189 @@
+﻿@page "/Sample"
+@inject ICategoryData categoryData
+@inject IStatusData statusData
+@inject IUserData userData
+@inject ISuggestionData suggestionData
+@if (categoriesCreated)
+{
+    <h4>Categories have been created</h4>
+}
+else
+{
+    <button class = "btn btn-primary" @onclick="CreateCategories">Create Categories</button>    
+}
+
+@if (statusesCreated)
+{
+    <h4>Statuses have been created</h4>
+}
+else
+{
+    <button class = "btn btn-primary" @onclick="CreateStatuses">Create Statuses</button>    
+}
+
+<button class="btn btn-danger" @onclick="GenerateSampleData">Generate Sample Data</button>
+
+@code {
+    private bool categoriesCreated = false;
+    private bool statusesCreated = false;
+
+    private async void CreateCategories()
+    {
+        Console.WriteLine("We made it categories");
+        //check if categories dont exist
+        var categories = categoryData.GetAllCategories();
+
+        if (categories?.Count > 0)
+        {
+            //categories already created
+            return;
+        }
+
+        CategoryModel cat = new()
+        {
+            CategoryName = "Courses",
+            CategoryDescription = "Full paid courses"
+        };
+        await categoryData.CreateCategoryAsync(cat);
+
+        cat = new()
+        {
+            CategoryName = "Dev Questions",
+            CategoryDescription = "Advice on being a developer"
+        };
+        await categoryData.CreateCategoryAsync(cat);
+
+        cat = new()
+        {
+            CategoryName = "In-Depth Tutorial",
+            CategoryDescription = "Deep-dive videos on how to use a topic"
+        };
+        await categoryData.CreateCategoryAsync(cat);
+
+        cat = new()
+        {
+            CategoryName = "10-Minute Training",
+            CategoryDescription = "A quick \"How do I use this?\" video."
+        };
+        await categoryData.CreateCategoryAsync(cat);
+
+        cat = new()
+        {
+            CategoryName = "Other",
+            CategoryDescription = "Not sure which category this fits in."
+        };
+        await categoryData.CreateCategoryAsync(cat);
+        categoriesCreated = true;
+    }
+
+    private async void CreateStatuses()
+    {
+        Console.WriteLine("We made it statuses");
+        var statuses = statusData.getAllStatuses();
+
+        if (statuses?.Count > 0)
+        {
+            return;
+        }
+
+        StatusModel stat = new()
+        {
+            StatusName = "Completed",
+            StatusDescription = "The suggestion was accepted and the corresponding item was created."
+        };
+        await statusData.CreateStatusAsync(stat);
+
+        stat = new()
+        {
+            StatusName = "Watching",
+            StatusDescription = "This was a good idea and We are watching to see if others are interested."
+        };
+        await statusData.CreateStatusAsync(stat);
+
+        stat = new()
+        {
+            StatusName = "Upcoming",
+            StatusDescription = "The suggestion was accepted and it will be released soon."
+        };
+        await statusData.CreateStatusAsync(stat);
+
+        stat = new()
+        {
+            StatusName = "Dismissed",
+            StatusDescription = "The suggestion was not something that we are going to undertake."
+        };
+        await statusData.CreateStatusAsync(stat);
+        statusesCreated = true;
+    }
+
+    private async void GenerateSampleData()
+    {
+        /*UserModel user = new()
+            {
+                FirstName = "Tim",
+                LastName = "Corey",
+                EmailAddress = "tim@test.com",
+                DisplayName = "Sample Tim Corey",
+                Id = "123456"
+            };
+        userData.CreateUser(user);*/
+
+        UserModel user = await userData.GetLastCreatedUserAsync();
+        List<CategoryModel> categories = categoryData.GetAllCategories();
+        List<StatusModel> statuses = statusData.getAllStatuses();
+
+        SuggestionModel suggestion = new()
+            {
+                Author = new BasicUserModel(user),
+                Category = categories[0],
+                Suggestion = "Our first Suggestion",
+                Description = "This is a suggestion created by the sample data generation method."
+            };
+
+        await suggestionData.createSuggestionAsync(suggestion);
+
+        suggestion = new()
+            {
+                Author = new BasicUserModel(user),
+                Category = categories[1],
+                Suggestion = "Our Second Suggestion",
+                Description = "This is a suggestion created by the sample data generation method.",
+                SuggestionStatus = statuses[0],
+                OwnerNotes = "This is a the note for the status."
+            };
+        await suggestionData.createSuggestionAsync(suggestion);
+
+        suggestion = new()
+            {
+                Author = new BasicUserModel(user),
+                Category = categories[2],
+                Suggestion = "Our Third Suggestion",
+                Description = "This is a suggestion created by the sample data generation method.",
+                SuggestionStatus = statuses[1],
+                OwnerNotes = "This is a the note for the status."
+            };
+        await suggestionData.createSuggestionAsync(suggestion);
+
+        suggestion = new()
+            {
+                Author = new BasicUserModel(user),
+                Category = categories[3],
+                Suggestion = "Our Fourth Suggestion",
+                Description = "This is a suggestion created by the sample data generation method.",
+                SuggestionStatus = statuses[2],
+                OwnerNotes = "This is a the note for the status."
+            };
+        await suggestionData.createSuggestionAsync(suggestion);
+
+        suggestion = new()
+            {
+                Author = new BasicUserModel(user),
+                Category = categories[4],
+                Suggestion = "Our Fifth Suggestion",
+                Description = "This is a suggestion created by the sample data generation method.",
+                SuggestionStatus = statuses[3],
+                OwnerNotes = "This is a the note for the status."
+            };
+        await suggestionData.createSuggestionAsync(suggestion);
+    }
+}
