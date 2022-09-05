@@ -256,7 +256,7 @@ namespace SuggestionAppLibrary.DataAccess
             List<CategoryModel> categoryList = await _categoryData.GetAllCategoriesAsync();
             List<StatusModel> statusList = await _statusData.getAllStatusesAsync();
             List<BasicUserModel> userList = await _userData.GetBasicUsersAsync();
-            var output = _cache.Get<List<SuggestionModel>>(CacheName);
+            var output = _cache.Get<List<SuggestionModel>>(CacheName)?.Where(x => x.ApprovedForRelease == false & x.Archived == false & x.Rejected == false).ToList();
 
             if (output == null)
             {
@@ -289,9 +289,10 @@ namespace SuggestionAppLibrary.DataAccess
 
         public async Task UpdateSuggestionAsync(SuggestionModel suggestion)
         {
-                await _connection.ExecuteAsync("Call updateSuggestion(@nSuggestion, @nDescription, @nDateCreated, @nSuggestionCategoryID, @nAuthorID, @nOwnerNotes, @nSuggestionStatusID, @nApprovedForRelease, @nArchived, @nRejected)",
+                await _connection.ExecuteAsync("Call updateSuggestion(@nId, @nSuggestion, @nDescription, @nDateCreated, @nSuggestionCategoryID, @nAuthorID, @nOwnerNotes, @nSuggestionStatusID, @nApprovedForRelease, @nArchived, @nRejected)",
                 new
                 {
+                    @nId = Int32.Parse(suggestion.Id),
                     @nSuggestion = suggestion.Suggestion,
                     @nDescription = suggestion.Description,
                     @nDateCreated = suggestion.DateCreated,

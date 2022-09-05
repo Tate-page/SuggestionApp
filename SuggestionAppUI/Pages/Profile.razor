@@ -2,6 +2,7 @@
 @inject ISuggestionData suggestionData
 @inject IUserData userData
 @inject NavigationManager navManager
+@inject UserModel loggedInUser
 
 <h1>My Profile</h1>
 
@@ -170,7 +171,6 @@
 
 
 @code {
-    private UserModel loggedInUser;
     private List<SuggestionModel> submissions;
     private List<SuggestionModel> approved;
     private List<SuggestionModel> archived;
@@ -179,7 +179,6 @@
 
     protected async override Task OnInitializedAsync()
     {
-        loggedInUser = await userData.GetUserFromIdAsync("4");
 
         var results = await suggestionData.GetUsersSuggestionsAsync(loggedInUser.Id);
 

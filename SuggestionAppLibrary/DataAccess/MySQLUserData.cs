@@ -2,15 +2,19 @@
 using MySql.Data.MySqlClient;
 using System.Configuration;
 using System.Data;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace SuggestionAppLibrary.DataAccess
 {
     public class MySQLUserData : IUserData
     {
+        private const string CacheName = "loggedInUser";
         private readonly MySqlConnection _connection;
-        public MySQLUserData(IDbConnection conn)
+        private readonly IMemoryCache _cache;
+        public MySQLUserData(IDbConnection conn, IMemoryCache cache)
         {
             _connection = conn.connection;
+            _cache = cache;
         }
 
         public async Task<List<UserModel>> GetUsersAsync()
@@ -107,15 +111,32 @@ namespace SuggestionAppLibrary.DataAccess
             return user;
         }
 
-        public async Task CreateUserAsync(UserModel user)
+        public async Task CreateUserAsync(UserModel user, string password, string favoriteColor)
         {
-            await _connection.ExecuteAsync("CALL InsertUser(@nFname, @nLname, @DisplayName, @nEmail)",
+            await _connection.ExecuteAsync("CALL InsertUser(@nFname, @nLname, @DisplayName, @nEmail, @nPassword)",
                 new
                 {
                     @nFname = user.FirstName,
                     @nLname = user.LastName,
                     @DisplayName = user.DisplayName,
-                    @nEmail = user.EmailAddress
+                    @nEmail = user.EmailAddress,
+                    @nPassword = password,
+                    @nFavoriteColor = favoriteColor
+                }
+            );
+        }
+
+        public void CreateUser(UserModel user, string password, string favoriteColor)
+        {
+            _connection.Execute("CALL InsertUser(@nFname, @nLname, @DisplayName, @nEmail, @nPassword, @nFavoriteColor)",
+                new
+                {
+                    @nFname = user.FirstName,
+                    @nLname = user.LastName,
+                    @DisplayName = user.DisplayName,
+                    @nEmail = user.EmailAddress,
+                    @nPassword = password,
+                    @nFavoriteColor = favoriteColor
                 }
             );
         }
@@ -153,6 +174,29 @@ namespace SuggestionAppLibrary.DataAccess
             return output;
         }
 
+        public List<BasicSuggestionModel> getAuthoredSuggestionsByID(string id)
+        {
+            List<BasicSuggestionModel> output = new List<BasicSuggestionModel>();
+
+            var temp = _connection.Query("CALL getBasicSuggestionsByAuthoredID(@nId)",
+                new
+                {
+                    @nId = id
+                }
+            );
+
+            foreach (var item in temp)
+            {
+                BasicSuggestionModel suggestion = new()
+                {
+                    Id = item.SuggestionID.ToString(),
+                    Suggestion = item.Suggestion
+                };
+                output.Add(suggestion);
+            }
+            return output;
+        }
+
         public async Task<List<UserVotesModel>> getUpvotesByUserIDAsync(string id) {
             List<UserVotesModel> output = new List<UserVotesModel>();
 
@@ -174,5 +218,56 @@ namespace SuggestionAppLibrary.DataAccess
             }
             return output;
         }
+
+        public List<UserVotesModel> getUpvotesByUserID(string id)
+        {
+            List<UserVotesModel> output = new List<UserVotesModel>();
+
+            var temp = _connection.Query("CALL getUpvotesByUserID(@nId)",
+                new
+                {
+                    @nId = id
+                }
+            );
+
+            foreach (var item in temp)
+            {
+                UserVotesModel suggestion = new()
+                {
+                    UserID = item.SuggestionID.ToString(),
+                    SuggestionID = item.Suggestion
+                };
+                output.Add(suggestion);
+            }
+            return output;
+        }
+
+        public UserModel getLoggedInUserIfValid(string DisplayName, string Password)
+        {
+            var tamp = _connection.QueryFirstOrDefault("CALL GetLoggedInUserIfValid(@nDisplayName, @nPassword)",
+                    new
+                    {
+                        @nDisplayName = DisplayName,
+                        @nPassword = Password
+                    }
+                );
+            UserModel user = new();
+            if (tamp is not null){
+                user = new()
+                {
+                    Id = tamp.UserID.ToString(),
+                    FirstName = tamp.Fname,
+                    LastName = tamp.LName,
+                    DisplayName = tamp.DisplayName,
+                    EmailAddress = tamp.Email,
+                    AuthoredSuggestion = this.getAuthoredSuggestionsByID(tamp.UserID.ToString()),
+                    VotedOnSuggestions = this.getUpvotesByUserID(tamp.UserID.ToString())
+                };
+            }
+            _cache.Set(CacheName, user, TimeSpan.FromDays(value: 1));
+            return user;
+        }
     }
+
+    
 }

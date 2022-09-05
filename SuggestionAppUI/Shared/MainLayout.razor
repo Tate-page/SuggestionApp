@@ -1,4 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using SuggestionAppUI.Models
+@inherits LayoutComponentBase
+@inject NavigationManager navManager
+@inject ProtectedSessionStorage BrowserStorage
+@inject ILoggedInUser loggedInUser
+@using Newtonsoft.Json;
 
 <PageTitle>SuggestionAppUI</PageTitle>
 
@@ -6,8 +11,53 @@
     
 
     <main>
+        <div>
+            <button id="homePageRedirect" @onclick="(() => OpenIndex())">Home Page</button>
+        </div>
+
+        @if(!loggedInUser.IsLoggedIn)
+        {
+            <div>
+                <button id="signIn" @onclick="(() => OpenLogin())">SignIn</button>
+                <button id="createAccount" @onclick="(() => OpenCreateAccount())">Create Account</button>
+            </div>
+        }
+        else
+        {
+            <div>
+                <p style="color: green;">Welcome Back @loggedInUser.DisplayName</p>
+                <button id="signOut" @onclick="(() => SignOut())">Sign Out</button>
+            </div>
+        }
+
         <article class="content px-4">
-            @Body
-        </article>
+                @Body
+            </article>    
     </main>
 </div>
+
+@code{
+    private string sessionStorageName = "loggedInUser";
+
+    private void OpenLogin()
+    {
+        navManager.NavigateTo($"/LogIn");
+    }
+
+    private void OpenCreateAccount()
+    {
+        navManager.NavigateTo($"/CreateUser");
+    }
+
+    private void OpenIndex()
+    {
+        navManager.NavigateTo($"/");
+    }
+
+    private void SignOut()
+    {
+        loggedInUser.IsLoggedIn = false;
+        BrowserStorage.DeleteAsync(sessionStorageName);
+        StateHasChanged();
+    }
+}

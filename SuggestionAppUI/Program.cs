@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using SuggestionAppUI;
+using SuggestionAppUI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<ILoggedInUser, LoggedInUser>();
+
 builder.ConfigureServices();
 
 var app = builder.Build();

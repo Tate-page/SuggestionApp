@@ -1,0 +1,67 @@
+﻿@page "/LogIn"
+@using SuggestionAppUI.Models
+@inject IUserData userData
+@inject NavigationManager NavManager
+@inject ProtectedSessionStorage BrowserStorage
+@inject ILoggedInUser loggedInUser
+@using Newtonsoft.Json;
+<div>
+    @if(errorStatus == 1)
+    {
+        <p style="color:green;"> @loggedInUser.DisplayName has been logged in!!</p>
+    }else{
+        <p>@errorText</p>
+    }
+</div>
+
+<EditForm Model="@loginUser" OnValidSubmit="@handleLogin">
+    <ValidationSummary />
+    <h1>Display Name:</h1>
+    <InputText id="DisplayNameInput" @bind-Value="loginUser.DisplayName" />
+    <ValidationMessage For="@(() => loginUser.DisplayName)"/>
+
+    <h1>Password:</h1>
+    <InputText id="PasswordInput" @bind-Value="loginUser.Password" />
+    <ValidationMessage For="@(() => loginUser.Password)"/>
+
+    <button type="submit" class="btn btn-primary" value="Save">LogIn</button>
+</EditForm>
+@code {
+    private loginUser loginUser = new();
+    private bool isUserValid = false;
+    private int errorStatus = 0;
+    private string errorText;
+    private string sessionStorageName = "loggedInUser";
+    //private UserModel loggedInUser=new();
+
+    private void handleLogin()
+    {
+        try
+        {
+            var results = userData.getLoggedInUserIfValid(loginUser.DisplayName, loginUser.Password);
+            loggedInUser.Id = results.Id;
+            loggedInUser.FirstName = results.FirstName;
+            loggedInUser.LastName = results.LastName;
+            loggedInUser.DisplayName = results.DisplayName;
+            loggedInUser.EmailAddress = results.EmailAddress;
+            loggedInUser.AuthoredSuggestion = results.AuthoredSuggestion;
+            loggedInUser.VotedOnSuggestions = results.VotedOnSuggestions;
+            isUserValid = true;
+            }catch(Exception ex)
+            {
+                errorStatus = 2;
+                errorText = ex.ToString();
+            }
+
+
+            if(loggedInUser is not null && isUserValid)
+            {
+                errorStatus = 1;
+                string json = JsonConvert.SerializeObject(loggedInUser);
+                loggedInUser.IsLoggedIn = true;
+                BrowserStorage.SetAsync(sessionStorageName, json);
+                StateHasChanged();
+            }
+
+    }
+}

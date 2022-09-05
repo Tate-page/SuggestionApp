@@ -1,0 +1,111 @@
+﻿@page "/CreateUser"
+@inject UserModel loggedInUser
+@inject IUserData userData
+@using SuggestionAppUI.Models
+@inject NavigationManager NavManager
+
+<h1 style="color:green;" @bind(logInDisplay)></h1>
+<div>
+    @if(logInErrors == 1){
+        <p style="color: green;"> @createUserModel.DisplayName has been created</p>
+    }else if(logInErrors == 2){
+        <p style="color: red;">
+            @errorText
+        </p>
+    }
+</div>
+<EditForm Model="@createUserModel" OnValidSubmit="@handleCreateLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <h1>Display Name:</h1>
+    <InputText id="DisplayNameInput" @bind-Value="createUserModel.DisplayName" />
+    <ValidationMessage For="@(() => createUserModel.DisplayName)"/>
+
+    <h1>First Name:</h1>
+    <InputText id="FnameInput" @bind-Value="createUserModel.Fname" />
+    <ValidationMessage For="@(() => createUserModel.Fname)"/>
+
+    <h1>Last Name:</h1>
+    <InputText id="Lname2Input" @bind-Value="createUserModel.Lname" />
+    <ValidationMessage For="@(() => createUserModel.Lname)"/>
+
+    <h1>Password</h1>
+    <InputText id="Password1Input" @bind-Value="createUserModel.Password1" />
+    <ValidationMessage For="@(() => createUserModel.Password1)"/>
+
+    <h1>Re-enter Password</h1>
+    <InputText id="Password2Input" @bind-Value="createUserModel.Password2" />
+    <ValidationMessage For="@(() => createUserModel.Password2)"/>
+
+    <h1>Favorite Color:</h1>
+    <InputText id="ColorInput" @bind-Value="createUserModel.favoriteColor" />
+    <ValidationMessage For="@(() => createUserModel.favoriteColor)"/>
+
+    <h1>Email:</h1>
+    <InputText id="emailInput" @bind-Value="createUserModel.email" />
+
+    <br />
+    <button type="submit" >Create Account</button>
+</EditForm>
+
+@code {
+    private CreateUserModel createUserModel = new();
+    private EditContext? editContext;
+    private int logInErrors;
+    private string errorText;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        editContext = new(createUserModel);
+    }
+
+    private void handleCreateLogin()
+    {
+        bool exception = false;
+        UserModel user = new()
+            {
+                FirstName = createUserModel.Fname,
+                LastName = createUserModel.Lname,
+                DisplayName = createUserModel.DisplayName,
+                EmailAddress = createUserModel.email
+            };
+        try
+        {
+            userData.CreateUser(user, createUserModel.Password1, createUserModel.favoriteColor);
+
+
+        }
+        catch (Exception ex)
+        {
+            logInErrors = 2;
+            exception = true;
+            Console.WriteLine(ex);
+            if(ex.ToString().Contains("Duplicate entry"))
+            {
+                if(ex.ToString().Contains("DisplayName"))
+                {
+                    errorText = createUserModel.DisplayName + " has already been used";
+                }
+                else
+                {
+                    errorText = "An unknown duplication error has occured";
+                }
+            }
+            else
+            {
+                errorText = "An unknown error has occured";
+            }
+
+        }
+        if (!exception)
+        {
+            logInErrors = 1;
+        }
+
+
+    }
+
+    
+}
