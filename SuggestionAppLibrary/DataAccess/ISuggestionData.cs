@@ -12,5 +12,7 @@
         Task<List<SuggestionModel>> GetUsersSuggestionsAsync(string userID);
         Task UpdateSuggestionAsync(SuggestionModel suggestion);
         Task UpvoteSuggestionAsync(string suggestionId, string userId);
+        Task<List<UserVotesModel>> getUpvotesBySuggestionIDAsync(string id);
+        List<UserVotesModel> getUpvotesBySuggestionID(string id);
     }
 }

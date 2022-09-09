@@ -10,29 +10,31 @@
 <div class="page">
     
 
-    <main>
-        <div>
-            <button id="homePageRedirect" @onclick="(() => OpenIndex())">Home Page</button>
+    <main class="container-xxl">
+        <div class="px-5 pt-3 navLinks">
+            <a id="homePageRedirect" class="loginLink" @onclick="(() => OpenIndex())">Home</a>
+
+            @if (!loggedInUser.IsLoggedIn)
+            {
+                <a id="signIn" class="loginLink" @onclick="(() => OpenLogin())">SignIn</a>
+                <a id="createAccount" class="loginLink" @onclick="(() => OpenCreateAccount())">Create Account</a>
+            }
+            else
+            {
+                <a id="profile" class="loginLink" @onclick="(() => OpenProfile())">Profile</a>
+                <a id="signOut" class="loginLink" @onclick="(() => SignOut())">Sign Out</a>
+            }
+
+            @if (loggedInUser.isAdmin)
+            {
+                <a id="adminApproval" class="loginLink" @onclick="(() => OpenAdminApproval())">Admin Approval</a>
+            }
         </div>
+        
 
-        @if(!loggedInUser.IsLoggedIn)
-        {
-            <div>
-                <button id="signIn" @onclick="(() => OpenLogin())">SignIn</button>
-                <button id="createAccount" @onclick="(() => OpenCreateAccount())">Create Account</button>
-            </div>
-        }
-        else
-        {
-            <div>
-                <p style="color: green;">Welcome Back @loggedInUser.DisplayName</p>
-                <button id="signOut" @onclick="(() => SignOut())">Sign Out</button>
-            </div>
-        }
-
-        <article class="content px-4">
+        <article class="content pt-1">
                 @Body
-            </article>    
+        </article>    
     </main>
 </div>
 
@@ -54,10 +56,19 @@
         navManager.NavigateTo($"/");
     }
 
+    private void OpenProfile()
+    {
+        navManager.NavigateTo("/Profile");
+    }
+
     private void SignOut()
     {
-        loggedInUser.IsLoggedIn = false;
-        BrowserStorage.DeleteAsync(sessionStorageName);
+        loggedInUser.Clear();
         StateHasChanged();
+    }
+
+    private void OpenAdminApproval()
+    {
+        navManager.NavigateTo("/AdminApproval");
     }
 }

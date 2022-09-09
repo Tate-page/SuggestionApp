@@ -211,8 +211,8 @@ namespace SuggestionAppLibrary.DataAccess
             {
                 UserVotesModel suggestion = new()
                 {
-                    UserID = item.SuggestionID.ToString(),
-                    SuggestionID = item.Suggestion
+                    UserID = item.UserID.ToString(),
+                    SuggestionID = item.SuggestionID.ToString()
                 };
                 output.Add(suggestion);
             }
@@ -226,7 +226,7 @@ namespace SuggestionAppLibrary.DataAccess
             var temp = _connection.Query("CALL getUpvotesByUserID(@nId)",
                 new
                 {
-                    @nId = id
+                    @nId = Int32.Parse(id)
                 }
             );
 
@@ -234,8 +234,8 @@ namespace SuggestionAppLibrary.DataAccess
             {
                 UserVotesModel suggestion = new()
                 {
-                    UserID = item.SuggestionID.ToString(),
-                    SuggestionID = item.Suggestion
+                    UserID = item.UserID.ToString(),
+                    SuggestionID = item.UpvoteSuggestionID.ToString()
                 };
                 output.Add(suggestion);
             }
@@ -266,6 +266,51 @@ namespace SuggestionAppLibrary.DataAccess
             }
             _cache.Set(CacheName, user, TimeSpan.FromDays(value: 1));
             return user;
+        }
+
+        public async Task<UserModel> getLoggedInUserIfValidAsync(string DisplayName, string Password)
+        {
+            var tamp = await _connection.QueryFirstOrDefaultAsync("CALL GetLoggedInUserIfValid(@nDisplayName, @nPassword)",
+                    new
+                    {
+                        @nDisplayName = DisplayName,
+                        @nPassword = Password
+                    }
+                );
+            UserModel user = new();
+            if (tamp is not null)
+            {
+                user = new()
+                {
+                    Id = Convert.ToString(tamp.UserID) ,
+                    FirstName = tamp.Fname,
+                    LastName = tamp.LName,
+                    DisplayName = tamp.DisplayName,
+                    EmailAddress = tamp.Email,
+                    AuthoredSuggestion = this.getAuthoredSuggestionsByID(Convert.ToString(tamp.UserID)),
+                    VotedOnSuggestions = this.getUpvotesByUserID(Convert.ToString(tamp.UserID))
+                };
+            }
+            _cache.Set(CacheName, user, TimeSpan.FromDays(value: 1));
+            return user;
+        }
+
+        public async Task<bool> getAdminLevelFromDisplayName(string DisplayName)
+        {
+            var tamp = await _connection.QueryFirstOrDefaultAsync("CALL GetAdminLevelFromDisplayName(@nDisplayName)",
+                    new
+                    {
+                        @nDisplayName = DisplayName
+                    }
+                );
+            if(tamp.isAdmin == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 

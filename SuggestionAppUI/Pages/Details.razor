@@ -1,34 +1,39 @@
 ﻿@page "/Details/{Id}"
+@using SuggestionAppUI.Models
+@inject ILoggedInUser loggedInUser
 @inject ISuggestionData suggestionData
 @inject NavigationManager navManager
 
-<h1>Suggestion Details</h1>
+<h1 class="pageHeading text-uppercase mb-4">Suggestion Details</h1>
 
-<div>
-    <div>
+<div class="row justify-content-center detailForm">
+    <div class="col-xl-8 col-lg-10 formLayout">
         @if (suggestion is not null)
         {
-            <div>
-                <div>
+            <div class="row suggestionDetailRow">
+                <div class="col-11 suggestionDetail">
                     <div>
-                        <div>@getUpvoteTopText()</div>
-                        <span class="oi oi-caret-top"></span>
-                        <div>@getUpvoteBottomText()</div>
+                        <div @onclick="(() => VoteUp())" class="@GetVoteClass()">
+                            <div class="text-uppercase">@getUpvoteTopText()</div>
+                            <span class="oi oi-caret-top detailUpvote"></span>
+                            <div class="text-uppercase">@getUpvoteBottomText()</div>
+                        </div>
+                        <div class="suggestionDetailDate">
+                            <div>@suggestion.DateCreated.ToString("MM.dd.yyyy")</div>
+                        </div>
                     </div>
-                    <div>
-                        <div>@suggestion.DateCreated.ToString("MM.dd.yyyy")</div>
+                    <div class="suggestionDetailText">
+                        <div class="fw-bold mb-2 suggestionDetailSuggestion">@suggestion.Suggestion</div>
+                        <div class="mb-2 suggestionDetailAuthor">@suggestion.Author.DisplayName</div>
+                        <div class="mb-2 ">@suggestion.Description</div>
+                        <div class="suggestionEntryTextCategory">
+                            @suggestion.Category?.CategoryName
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <div>@suggestion.Suggestion</div>
-                    <div>@suggestion.Author.DisplayName</div>
-                    <div>@suggestion.Description</div>
-                    <div>
-                        @suggestion.Category?.CategoryName
-                    </div>
-                </div>
-                <div>
-                    <button @onclick="ClosePage"></button>
+                
+                <div class="col-1 closeButtonSection">
+                    <button @onclick="ClosePage" class="btn btn-close"></button>
                 </div>
             </div>
         }
@@ -37,14 +42,14 @@
 
 @if (suggestion?.SuggestionStatus is not null)
 {
-    <div>
-        <div>
-            <div></div>
-            <div>
-                <div>
+    <div class="row justify-content-center detailForm">
+        <div class="col-xl-8 col-lg-10 suggestionResults formLayout">
+            <div class="@GetStatusClass()"></div>
+            <div class="suggestionDetailStatusSection">
+                <div class="suggestionDetailStatus fw-bold mb-2 suggestionDetailSuggestion">
                     @suggestion.SuggestionStatus.StatusName
                 </div>
-                <div>
+                <div class="suggestionDetailOwnerNotes">
                     @((MarkupString)suggestion.OwnerNotes)
                 </div>
             </div>
@@ -79,7 +84,15 @@
         }
         else
         {
-            return "Click To";
+            if(suggestion.Author.Id == loggedInUser?.Id)
+            {
+                return "Awaiting";
+            }
+            else
+            {
+                return "Click To";    
+            }
+
         }
     }
 
@@ -93,5 +106,78 @@
         {
             return "Upvote";
         }
+    }
+
+    private async Task VoteUp()
+    {
+        if (loggedInUser.IsLoggedIn)
+        {
+            if(suggestion.Author.Id == loggedInUser.Id)
+            {
+                //cannot vote on your own suggestion
+                return;
+            }
+
+            if(suggestion.UserVotes is null)
+            {
+                suggestion.UserVotes = await suggestionData.getUpvotesBySuggestionIDAsync(suggestion.Id);
+            }
+
+            if(suggestion.UserVotes is not null && suggestion.UserVotes.Any(votes => votes.UserID == loggedInUser.Id))
+            {
+                //remove upvote
+                UserVotesModel userVote = suggestion.UserVotes.Where(votes => votes.UserID == loggedInUser.Id).FirstOrDefault();
+                suggestion.UserVotes.Remove(userVote);
+            }
+            else
+            {
+                UserVotesModel temp = new()
+                {
+                    SuggestionID = suggestion.Id,
+                    UserID = loggedInUser.Id
+                };
+                suggestion.UserVotes.Add(temp);
+            }
+
+            //stored proc checks if upvote exists before removing or adding it
+            await suggestionData.UpvoteSuggestionAsync(suggestion.Id, loggedInUser.Id);    
+        }
+        else
+        {
+            navManager.NavigateTo($"/CreateUser", true);
+        }
+    }
+
+    private string GetVoteClass()
+    {
+        if(suggestion.UserVotes?.Count is null || suggestion.UserVotes.Count == 0)
+        {
+            return "suggestionDetailNoVotes";
+        }else if(loggedInUser.IsLoggedIn && suggestion.UserVotes.Any(votes => votes.UserID == loggedInUser.Id))
+        {
+            return "suggestionDetailVoted";
+        }
+        else
+        {
+            return "suggestionDetailNotVoted";
+        }
+    }
+
+    private string GetStatusClass()
+    {
+        if(suggestion is null || suggestion.SuggestionStatus is null)
+        {
+            return "suggestionDetailStatusNone";
+        }
+
+        string output = suggestion.SuggestionStatus.StatusName switch
+        {
+            "Completed" => "suggestionDetailStatusCompleted",
+            "Watching" => "suggestionDetailStatusWatching",
+            "Upcoming" => "suggestionDetailStatusUpcoming",
+            "Dismissed" => "suggestionDetailStatusDismissed",
+            _ => "suggestionDetailStatusNone",
+        };
+        return output;
     }
 }

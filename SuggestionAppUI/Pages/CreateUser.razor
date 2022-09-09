@@ -1,52 +1,148 @@
 ﻿@page "/CreateUser"
-@inject UserModel loggedInUser
 @inject IUserData userData
 @using SuggestionAppUI.Models
 @inject NavigationManager NavManager
 
 <h1 style="color:green;" @bind(logInDisplay)></h1>
 <div>
-    @if(logInErrors == 1){
-        <p style="color: green;"> @createUserModel.DisplayName has been created</p>
-    }else if(logInErrors == 2){
-        <p style="color: red;">
-            @errorText
-        </p>
-    }
+
 </div>
-<EditForm Model="@createUserModel" OnValidSubmit="@handleCreateLogin">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <h1>Display Name:</h1>
-    <InputText id="DisplayNameInput" @bind-Value="createUserModel.DisplayName" />
-    <ValidationMessage For="@(() => createUserModel.DisplayName)"/>
+<div class="d-flex flex-row justify-content-center">
+    <div id="FormDiv">
+        <div id="FormHeader" class="d-flex flex-row justify-content-center">
+            <h1>Create Account</h1>
+        </div>
 
-    <h1>First Name:</h1>
-    <InputText id="FnameInput" @bind-Value="createUserModel.Fname" />
-    <ValidationMessage For="@(() => createUserModel.Fname)"/>
+        <div id="FormBody" class="d-flex flex-row justify-content-center">
+            <EditForm Model="@createUserModel" OnValidSubmit="@handleCreateLogin" class="d-flex flex-column justify-content-center">
+                
+                <div class="d-flex flex-row justify-content-center p-1">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-row">
+                            <DataAnnotationsValidator />
+                        </div>
+                        <div class="d-flex flex-row">
+                            <ValidationSummary />
+                        </div>
+                        <div class="d-flex flex-row">
+                            @if (logInErrors == 1)
+                            {
+                                <p style="color: green;"> @createUserModel.DisplayName has been created</p>
+                            }
+                            else if (logInErrors == 2)
+                            {
+                                <p style="color: red;">
+                                    @errorText
+                                </p>
+                            }
+                        </div>
+                    </div>
+                    
+                </div>
+                
 
-    <h1>Last Name:</h1>
-    <InputText id="Lname2Input" @bind-Value="createUserModel.Lname" />
-    <ValidationMessage For="@(() => createUserModel.Lname)"/>
+                <div class="d-flex flex-row justify-content-center p-1">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="m-0">Display Name:</p>
+                            <InputText id="DisplayNameInput" @bind-Value="createUserModel.DisplayName" />
+                        </div>
+                        <div class="d-flex flex-row">
+                            <ValidationMessage For="@(() => createUserModel.DisplayName)" />
+                        </div>
+                    </div>
+                </div>
+                
 
-    <h1>Password</h1>
-    <InputText id="Password1Input" @bind-Value="createUserModel.Password1" />
-    <ValidationMessage For="@(() => createUserModel.Password1)"/>
+                <div class="d-flex flex-row justify-content-center p-1">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="m-0">First Name:</p>
+                            <InputText id="FnameInput" @bind-Value="createUserModel.Fname" />
+                        </div>
+                        <div class="d-flex flex-row">
+                            <ValidationMessage For="@(() => createUserModel.Fname)" />
+                        </div>
+                    </div>
+                </div>
+                
 
-    <h1>Re-enter Password</h1>
-    <InputText id="Password2Input" @bind-Value="createUserModel.Password2" />
-    <ValidationMessage For="@(() => createUserModel.Password2)"/>
+                <div class="d-flex flex-row justify-content-center p-1">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="m-0">Last Name:</p>
+                            <InputText id="Lname2Input" @bind-Value="createUserModel.Lname" />
+                        </div>
+                        <div class="d-flex flex-row">
+                            <ValidationMessage For="@(() => createUserModel.Lname)" />
+                        </div>
+                    </div> 
+                </div>
+                
 
-    <h1>Favorite Color:</h1>
-    <InputText id="ColorInput" @bind-Value="createUserModel.favoriteColor" />
-    <ValidationMessage For="@(() => createUserModel.favoriteColor)"/>
+                <div class="d-flex flex-row justify-content-center p-1">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="m-0">Password: </p>
+                            <InputText id="Password1Input" @bind-Value="createUserModel.Password1" />
+                        </div>
+                        <div class="d-flex flex-row">
+                            <ValidationMessage For="@(() => createUserModel.Password1)" />
+                        </div>
+                    </div>
+                </div>
+                
 
-    <h1>Email:</h1>
-    <InputText id="emailInput" @bind-Value="createUserModel.email" />
+                <div class="d-flex flex-row justify-content-center p-1">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="m-0">Re-enter Password: </p>
+                            <InputText id="Password2Input" @bind-Value="createUserModel.Password2" />
+                        </div>
+                        <div class="d-flex flex-row">
+                            <ValidationMessage For="@(() => createUserModel.Password2)" />
+                        </div>
+                    </div>
+                </div>
+                
 
-    <br />
-    <button type="submit" >Create Account</button>
-</EditForm>
+                <div class="d-flex flex-row justify-content-center p-1">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="m-0">Favorite Color: </p>
+                            <InputText id="ColorInput" @bind-Value="createUserModel.favoriteColor" />
+                        </div>
+                        <div class="d-flex flex-row">
+                            <ValidationMessage For="@(() => createUserModel.favoriteColor)" />
+                        </div>
+                    </div>
+                    
+                </div>
+                
+
+                <div class="d-flex flex-row justify-content-center p-1">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="m-0">Email: </p>
+                            <InputText id="emailInput" @bind-Value="createUserModel.email" />
+                        </div>
+                        <div class="d-flex flex-row">
+                            <ValidationMessage For="@(() => createUserModel.email)" />
+                        </div>
+                    </div>
+                    
+                </div>
+                
+
+                <div class="d-flex flex-row justify-content-center p-1">
+                    <button type="submit" class="btn btn-primary" value="Save" style="background-color: rgb(0, 0, 200)">Create Account</button>
+                </div>
+                
+            </EditForm>
+        </div>
+    </div>
+</div>
+
 
 @code {
     private CreateUserModel createUserModel = new();
@@ -95,7 +191,7 @@
             }
             else
             {
-                errorText = "An unknown error has occured";
+                errorText = ex.ToString();
             }
 
         }

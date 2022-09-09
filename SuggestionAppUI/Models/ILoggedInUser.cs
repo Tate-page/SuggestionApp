@@ -10,5 +10,8 @@
         string Id { get; set; }
         string LastName { get; set; }
         List<UserVotesModel> VotedOnSuggestions { get; set; }
+        bool isAdmin { get; set; }
+        UserModel returnAsUserModel();
+        void Clear();
     }
 }

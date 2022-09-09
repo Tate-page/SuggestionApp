@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using SuggestionAppUI.Models
+@inject ILoggedInUser loggedInUser
 @inject ICategoryData categoryData
 @inject IStatusData statusData
 @inject ISuggestionData suggestionData
@@ -6,48 +8,49 @@
 @inject NavigationManager navManager
 @inject ProtectedSessionStorage sessionStorage
 
-<h1>Training Suggestions</h1>
-<div>
-    <button>Suggest</button>
+<h1 class="pageHeading text-uppercase mb-4">Training Suggestions</h1>
+<div class="suggestionContainer">
+    <button @onclick="LoadCreatePage" class="suggestBtn btn btn-outline-light btn-lg text-uppercase">Suggest</button>
 </div>
 
-<div>
-    <div>@suggestions?.Count Suggestions</div>
-    <div>
-        <button @onclick="(() => OrderByNew(true))">New</button>
-        <button @onclick="(() => OrderByNew(false))">Popular</button>
+<div class="row">
+    <div class="suggestionsCount col-md-4 text-light mt-2">@suggestions?.Count Suggestions</div>
+    <div class="col-md-4 col-xl-5 btn-group">
+        <button @onclick="(() => OrderByNew(true))" class="btn btn-order @SortedByNewClass(true)">New</button>
+        <button @onclick="(() => OrderByNew(false))" class="btn btn-order @SortedByNewClass(false)">Popular</button>
     </div>
-    <div>
+    <div class="col-md-4 col-xl-3 searchBox">
         <input type="text" placeholder="Search" 
                aria-label="Search box" 
+               class="form-control roundedControl"
                @oninput="((txt) => OnSearchInput((string)txt.Value))"/>
         
 
     </div>
 </div>
 
-<div>
-    <div>
+<div class="row">
+    <div class="col-md-8 col-xl-9">
         @if (suggestions is not null)
         {
             //infinitely scrolling list
             <Virtualize Items="@suggestions" Context="s" OverscanCount="10">
-                <div>
-                    <div>
-                        <div>@getUpvoteTopText(s)</div>
-                        <span id="upvoteArrow" class="oi oi-caret-top"></span>
-                        <div>@getUpvoteBottomText(s)</div>
+                <div class="suggestionEntry">
+                    <div class="@GetVoteClass(s)" @onclick="(() => VoteUp(s))">
+                        <div class="text-uppercase">@getUpvoteTopText(s)</div>
+                        <span id="upvoteArrow" class="oi oi-caret-top entryUpvote" ></span>
+                        <div class="text-uppercase" >@getUpvoteBottomText(s)</div>
                     </div>
-                    <div>
-                        <div @onclick="(() => OpenDetails(s))">
+                    <div class="suggestionEntryText">
+                        <div class="suggestionEntryTextTitle" @onclick="(() => OpenDetails(s))">
                             @s.Suggestion
                         </div>
-                        <div @onclick="(() => OpenDetails(s))">
+                        <div  @onclick="(() => OpenDetails(s))" class="suggestionEntryTextCategory">
                             @s.Category?.CategoryName
                         </div>
                     </div>
-                    <div>
-                        <div>
+                    <div class="suggestionEntryStatus @GetSuggestionStatusClass(s)">
+                        <div class="suggestionEntryStatusText">
                             @s.SuggestionStatus?.StatusName
                         </div>
                     </div>
@@ -55,15 +58,15 @@
             </Virtualize>
         }
     </div>
-    <div>
+    <div class="col-md-4 col-xl-3">
         @if(categories is not null)
         {
-            <div>
-                <span>Category</span>
-                <div @onclick="(() => OnCategoryClick())">All</div>
+            <div class="categories">
+                <span class="text-uppercase fw-bold">Category</span>
+                <div @onclick="(() => OnCategoryClick())" class="@GetSelectedCategory()">All</div>
                 @foreach(var c in categories)
                 {
-                    <div @onclick="(() => OnCategoryClick(c.CategoryName))">
+                    <div @onclick="(() => OnCategoryClick(c.CategoryName))" class="@GetSelectedCategory(c.CategoryName)">
                         @c.CategoryName
                     </div>
                 }
@@ -72,12 +75,12 @@
 
         @if (statuses is not null)
         {
-            <div>
-                <span>Status</span>
-                <div @onclick="(() => OnStatusClick())">All</div>
+            <div class="statuses">
+                <span class="text-uppercase fw-bold">Status</span>
+                <div @onclick="(() => OnStatusClick())" class="@GetSelectedStatus()">All</div>
                 @foreach(var s in statuses)
                 {
-                    <div @onclick="(() => OnStatusClick(s.StatusName))">
+                    <div @onclick="(() => OnStatusClick(s.StatusName))" class="@GetSelectedStatus(s.StatusName)">
                         @s.StatusName
                     </div>
                 }
@@ -89,9 +92,9 @@
 
 
 @code{
-    private List<SuggestionModel> suggestions;
-    private List<CategoryModel> categories;
-    private List<StatusModel> statuses;
+    private List<SuggestionModel> suggestions = new();
+    private List<CategoryModel> categories = new();
+    private List<StatusModel> statuses = new();
 
     private string selectedCategory = "All";
     private string selectedStatus = "All";
@@ -209,7 +212,62 @@
         }
         else
         {
-            return "Click To";
+            if(suggestion.Author.Id == loggedInUser?.Id)
+            {
+                return "Awaiting";
+            }
+            else
+            {
+                return "Click To";    
+            }
+
+        }
+    }
+
+    private async Task VoteUp(SuggestionModel suggestion)
+    {
+        if (loggedInUser.IsLoggedIn)
+        {
+            if(suggestion.Author.Id == loggedInUser.Id)
+            {
+                //cannot vote on your own suggestion
+                return;
+            }
+
+            if(suggestion.UserVotes is null)
+            {
+                suggestion.UserVotes = await suggestionData.getUpvotesBySuggestionIDAsync(suggestion.Id);
+            }
+
+            if(suggestion.UserVotes is not null && suggestion.UserVotes.Any(votes => votes.UserID == loggedInUser.Id))
+            {
+                //remove upvote
+                UserVotesModel userVote = suggestion.UserVotes.Where(votes => votes.UserID == loggedInUser.Id).FirstOrDefault();
+                suggestion.UserVotes.Remove(userVote);
+            }
+            else
+            {
+                UserVotesModel temp = new()
+                {
+                    SuggestionID = suggestion.Id,
+                    UserID = loggedInUser.Id
+                };
+                suggestion.UserVotes.Add(temp);
+            }
+
+            //stored proc checks if upvote exists before removing or adding it
+            await suggestionData.UpvoteSuggestionAsync(suggestion.Id, loggedInUser.Id);    
+
+            if(isSortedByNew == false)
+            {
+                suggestions = suggestions
+                .OrderByDescending(s => s.UserVotes?.Count)
+                .ThenByDescending(s => s.DateCreated).ToList();
+            }
+        }
+        else
+        {
+            navManager.NavigateTo($"/CreateUser", true);
         }
     }
 
@@ -228,5 +286,86 @@
     private void OpenDetails(SuggestionModel suggestion)
     {
         navManager.NavigateTo($"/Details/{suggestion.Id}");
+    }
+
+    private void LoadCreatePage()
+    {
+        if (loggedInUser.IsLoggedIn)
+        {
+            navManager.NavigateTo("/Create");
+        }
+        else
+        {
+            navManager.NavigateTo("/Login");
+        }
+    }
+
+    private string SortedByNewClass(bool isNew)
+    {
+        if(isNew == isSortedByNew)
+        {
+            return "sortSelected";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    private string GetVoteClass(SuggestionModel suggestion)
+    {
+        if(suggestion.UserVotes?.Count is null || suggestion.UserVotes.Count == 0)
+        {
+            return "suggestionEntryNoVotes";
+        }else if(loggedInUser.IsLoggedIn && suggestion.UserVotes.Any(votes => votes.UserID == loggedInUser.Id))
+        {
+            return "suggestionEntryVoted";
+        }
+        else
+        {
+            return "suggestionEntryNotVoted";
+        }
+    }
+
+    private string GetSuggestionStatusClass(SuggestionModel suggestion)
+    {
+        if(suggestion is null || suggestion.SuggestionStatus is null)
+        {
+            return "suggestionEntryStatusNone";
+        }
+
+        string output = suggestion.SuggestionStatus.StatusName switch
+        {
+            "Completed" => "suggestionEntryStatusCompleted",
+            "Watching" => "suggestionEntryStatusWatching",
+            "Upcoming" => "suggestionEntryStatusUpcoming",
+            "Dismissed" => "suggestionEntryStatusDismissed",
+            _ => "suggestionEntryStatusNone",
+        };
+        return output;
+    }
+
+    private string GetSelectedCategory(string category = "All")
+    {
+        if(category == selectedCategory)
+        {
+            return "selectedCategory";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    private string GetSelectedStatus(string category = "All")
+    {
+        if(category == selectedStatus)
+        {
+            return "selectedStatus";
+        }
+        else
+        {
+            return "";
+        }
     }
 }

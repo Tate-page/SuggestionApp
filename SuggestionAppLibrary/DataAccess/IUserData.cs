@@ -16,5 +16,8 @@
         void CreateUser(UserModel user, string password, string favoriteColor);
 
         UserModel getLoggedInUserIfValid(string DisplayName, string Password);
+
+        Task<UserModel> getLoggedInUserIfValidAsync(string DisplayName, string Password);
+        Task<bool> getAdminLevelFromDisplayName(string DisplayName);
     }
 }

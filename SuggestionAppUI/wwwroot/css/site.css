@@ -1,15 +1,35 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,700;1,900&display=swap');
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    height:100%;
+}
+
+h1, g2, g3, h4, h5 , h6{
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    color: white;
+}
+
+h1{
+    padding-top: 1rem;
 }
 
 h1:focus {
     outline: none;
 }
 
-a, .btn-link {
-    color: #0071c1;
+a, .btnLink{
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+a:hover, .btnLink:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
 }
 
 .btn-primary {
@@ -23,7 +43,7 @@ a, .btn-link {
 }
 
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+    /*outline: 1px solid #26b050;*/
 }
 
 .invalid {
@@ -62,3 +82,551 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+.background-Image-1 {
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient( rgba(0, 0, 200, 0.5), rgba(0, 0, 200, 0.5) ), 
+        url( "background-image-1.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.navElement{
+    color: white;
+}
+
+#FormHeader {
+    background-color: rgb(0, 0, 200);
+    color: white;
+}
+
+#FormDiv{
+    background-color: white;   
+    border-radius: 5%;
+    overflow: hidden;
+}
+
+.pageHeading{
+    text-align: center;
+}
+
+.suggestionContainer{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.suggestBtn{
+    font-family: 'Montserrat', sans-serif;
+    border-width: 3px;
+    border-radius: 10px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    font-weight: 900;
+}
+
+.btn-outline-light:hover{
+    color: #398AD8;
+    background-color: #FFFFFF;
+    border-color: #FFFFFF;
+}
+
+.suggestionsCount {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.btn-order{
+    background-color: #FFFFFF;
+    border: 0px solid #DDDDDD;
+    border-radius: 10px;
+}
+
+.btn:focus,
+.form-control:focus{
+    box-shadow: none;
+}
+
+.sortSelected{
+    background-color: #DDDDDD;
+    color: #000000;
+    font-weight: 700;
+}
+
+    .sortSelected:hover{
+        color: #000000;
+    }
+
+.searchBox{
+    --bs-gutter-x: 3.5rem;
+}
+
+.roundedControl{
+    border-radius: 10px;
+}
+
+.categories{
+    margin: 1rem;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    padding: 1rem;
+}
+    .categories {
+        margin-top: 1rem;
+    }
+
+        .categories div:hover {
+            cursor: pointer;
+        }
+
+.selectedCategory{
+    font-weight: 700;
+}
+
+.statuses {
+    margin: 1rem;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+    .statuses div {
+        margin-top: 1rem;
+    }
+        .statuses div:hover {
+            cursor: pointer;
+        }
+
+.selectedStatus {
+    font-weight: 700;
+}
+
+.suggestionEntry{
+    display: grid;
+    grid-template-columns: 142px 1fr 45px;
+    border-radius: 20px;
+    margin: 20px 0;
+    box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
+}
+
+.suggestionEntryNoVotes,
+.suggestionEntryVoted,
+.suggestionEntryNotVoted {
+    text-align: center;
+    border-right: 3px #39BAD8 solid;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    background-color: #39BAD8;
+    color: #FFFFFF;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    min-height: 142px;
+    cursor: pointer;
+}
+
+.suggestionEntryNoVotes{
+    background-color: #DDDDDD;
+    color: #FFFFFF;
+    border-color: #DDDDDD;
+}
+
+.suggestionEntryVoted{
+    background-color: #39BAD8;
+    color: #FFFFFF;
+}
+
+.suggestionEntryNotVoted{
+    background-color: #FFFFFF;
+    color: #39BAD8;
+}
+
+.suggestionEntryText{
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    padding-left: 20px;
+    background-color: #FFFFFF;
+}
+
+.suggestionEntryTextTitle{
+    flex-grow: 1;
+    padding-top: 10px;
+}
+
+.suggestionEntryTextCategory{
+    text-transform: uppercase;
+    color: darkgray;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+}
+
+.suggestionEntryStatus{
+    border-bottom-right-radius: 15px;
+    border-top-right-radius: 15px;
+    display: flex;
+    padding-top: 1rem;
+    padding-left: 0.2rem;
+    padding-bottom: 1rem;
+    padding-right: 1rem;
+}
+
+.suggestionEntryStatusCompleted {
+    background-color: #B5D43A;
+    border: 1px #B5D43A;
+}
+
+.suggestionEntryStatusWatching {
+    background-color: #E9354C;
+    border: 1px #E9354C;
+}
+
+.suggestionEntryStatusUpcoming {
+    background-color: #835581;
+    border: 1px #835581;
+}
+
+.suggestionEntryStatusDismissed {
+    background-color: #F9C30B;
+    border: 1px #F9C30B;
+}
+
+.suggestionEntryStatusNone {
+    background-color: #FFFFFF;
+    border: 1px #FFFFFF;
+}
+
+
+.suggestionEntryStatusText{
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    color: #FFFFFF;
+    padding: 0px;
+    text-align: center;
+    line-height: 1.75;
+    font-weight: bold;
+    font-size: 1.5rem;
+    letter-spacing: 1.2px;
+    align-self: end;
+}
+
+.navLinks{
+    display: flex;
+    text-align: center;
+    justify-content: flex-end;
+}
+
+.loginLink{
+    padding-left: 1rem;
+
+}
+
+.formLayout{
+    background-color: #FFFFFF;
+    border-radius: 15px;
+    padding: 2rem;
+}
+
+    .formLayout a{
+        font-weight: 700;
+        color: #39BAD8;
+    }
+        .formLayout a:hover {
+            font-weight: 700;
+            color: #39BAD8;
+            text-decoration: underline;
+        }
+
+.closeButtonSection{
+    display: flex;
+    justify-content: flex-end;
+
+}
+
+.inputSection{
+    margin-bottom: 2rem;
+}
+
+.inputDescription{
+    margin-bottom: 0.5rem;
+}
+
+.radioItemGroup input[type="radio"]{
+    display: none;
+}
+
+.radioItemGroup label{
+    border-color: #39BAD8;
+    border-width: 1px;
+    padding: 0.3rem 1.5rem;
+    border-radius: 10px;
+    width: 100%;
+    border-style: solid;
+}
+
+.radioItemGroup input[type="radio"]:checked + label {
+    background-color: #39BAD8;
+    color: #FFFFFF;
+    width: 100%;
+    border: 1px #39BAD8 solid;
+}
+
+.radioItemGroup{
+    margin: 0.5rem;
+
+}
+
+.centerChildren{
+    display: flex;
+    justify-content: center;
+}
+
+.btnMain{
+    color: white;
+    background-color: #39BAD8;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    border-radius: 10px;
+    border-width: 3px;
+}
+
+.btnMain:hover{
+    color: #39BAD8;
+    border-color: #39BAD8;
+    background-color: #FFFFFF;
+    border-width: 3px;
+}
+
+.suggestionDetailRow{
+    --bs-gutter-x: 0;
+}
+
+.suggestionDetail{
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    padding: 0;
+}
+
+.suggestionDetailNoVotes,
+.suggestionDetailVoted,
+.suggestionDetailNotVoted{
+    border: 3px solid #39BAD8;
+    text-align: center;
+    line-height: 1rem;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.suggestionDetailNoVotes:hover,
+.suggestionDetailVoted:hover,
+.suggestionDetailNotVoted:hover{
+    border: 3px solid #39BAD8;
+    background-color: #FFFFFF;
+    color: #39BAD8;
+}
+
+.suggestionDetailNoVotes {
+    background-color: #DDDDDD;
+    color: #FFFFFF;
+    border-color: #DDDDDD;
+}
+
+.suggestionDetailVoted {
+    background-color: #39BAD8;
+    color: #FFFFFF;
+}
+
+.suggestionDetailNotVoted {
+    background-color: #FFFFFF;
+    color: #39BAD8;
+}
+
+.detailUpvote{
+    font-size: 2.7rem;
+}
+
+.entryUpvote{
+    font-size: 3rem;
+}
+
+.suggestionDetailDate{
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.suggestionDetailText{
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    padding-left: 27px;
+    padding-right: 10px;
+    padding-top: 0;
+    padding-bottom: 10px;
+
+}
+
+.suggestionDetailSuggestion{
+    font-size: 1.25rem;
+
+}
+
+.suggestionDetailAuthor{
+    color: #A9A9A9;
+
+}
+
+.suggestionResults{
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.suggestionDetailStatusComplete{
+    background-color: #B5D43A;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.suggestionDetailStatusWatching {
+    background-color: #E9354C;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.suggestionDetailStatusUpcoming {
+    background-color: #835581;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.suggestionDetailStatusDismissed {
+    background-color: #F9C30B;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.suggestionDetailStatusNone {
+    background-color: #FFFFFF;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.suggestionDetailStatusSection{
+    padding: 1.5rem;
+}
+
+.suggestionDetailStatus{
+    flex-grow: 1;
+}
+
+.suggestionDetailOwnerNotes{
+    padding-bottom: 20px;
+}
+
+.submission{
+    background-color: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.btnApprove,
+.btnReject{
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    border-radius: 10px;
+    border-width: 3px;
+}
+
+.btnApprove{
+    color: #FFFFFF;
+    background-color: #B5D43A;
+    border-color: #FFFFFF;
+}
+
+    .btnApprove:hover {
+        color: #B5D43A;
+        border-color: #B5D43A;
+        border-color: #FFFFFF;
+    }
+
+.btnReject {
+    color: #FFFFFF;
+    background-color: #E9354C;
+    border-color: #FFFFFF;
+}
+
+    .btnReject:hover {
+        color: #E9354C;
+        border-color: #E9354C;
+        border-color: #FFFFFF;
+    }
+
+.ApprovalEditForm{
+    display: flex;
+}
+
+.approvalEditField{
+    flex: 1;
+    border-radius: 10px;
+}
+
+.submissionEditApprove{
+    color: #B5D43A;
+}
+    .submissionEditApprove:hover{
+        font-weight: 700;
+    }
+
+.submissionEditReject {
+    color: #E9354C;
+}
+    .submissionEditReject:hover{
+        font-weight: 700;
+    }
+
+.submissionEditIcon {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+    .submissionEditIcon:hover {
+        color: #39BAD8;
+    }
+
+.mySubmissionHeading{
+    color: black;
+    text-transform: uppercase;
+}
+
+.mySubmissionText{
+    margin-bottom: 0;
+    padding-left: 1rem;
+
+}
+
+.mySubmissionSeperator{
+    color: #A9A9A9;
+    height: 2px;
+    opacity: 1;
+}

@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Caching.Memory;
 using MySql.Data.MySqlClient;
+using System.Data;
+
 namespace SuggestionAppLibrary.DataAccess
 {
     public class MySQLSuggestionData : ISuggestionData
@@ -63,7 +65,7 @@ namespace SuggestionAppLibrary.DataAccess
                         DateCreated = temp.DateCreated,
                         Category = categoryList.FirstOrDefault(x => x.Id == temp.SuggestionCategoryID),
                         Author = userList.FirstOrDefault(x => x.Id == temp.AuthorID),
-                        UserVotes = temp.UserVotes,
+                        UserVotes = await this.getUpvotesBySuggestionIDAsync(temp.SuggestionID.ToString()),
                         SuggestionStatus = statusList.FirstOrDefault(x => x.Id == temp.SuggestionStatusID),
                         OwnerNotes = temp.OwnerNotes,
                         ApprovedForRelease = temp.ApprovedForRelease,
@@ -97,7 +99,7 @@ namespace SuggestionAppLibrary.DataAccess
                          DateCreated = temp.DateCreated,
                          Category = categoryList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionCategoryID?.ToString())),
                          Author = userList.FirstOrDefault(x => x.Id.Equals(temp.AuthorID?.ToString())),
-                         UserVotes = temp.UserVotes,
+                         UserVotes = await this.getUpvotesBySuggestionIDAsync(temp.SuggestionID.ToString()),
                          SuggestionStatus = statusList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionStatusID?.ToString())),
                          OwnerNotes = temp.OwnerNotes,
                          ApprovedForRelease = temp.ApprovedForRelease,
@@ -135,7 +137,7 @@ namespace SuggestionAppLibrary.DataAccess
                         DateCreated = temp.DateCreated,
                         Category = categoryList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionCategoryID?.ToString())),
                         Author = userList.FirstOrDefault(x => x.Id.Equals(temp.AuthorID?.ToString())),
-                        UserVotes = temp.UserVotes,
+                        UserVotes = this.getUpvotesBySuggestionID(temp.SuggestionID.ToString()),
                         SuggestionStatus = statusList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionStatusID?.ToString())),
                         OwnerNotes = temp.OwnerNotes,
                         ApprovedForRelease = temp.ApprovedForRelease,
@@ -168,7 +170,7 @@ namespace SuggestionAppLibrary.DataAccess
                     DateCreated = temp.DateCreated,
                     Category = categoryList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionCategoryID?.ToString())),
                     Author = userList.FirstOrDefault(x => x.Id.Equals(temp.AuthorID?.ToString())),
-                    UserVotes = temp.UserVotes,
+                    UserVotes = await this.getUpvotesBySuggestionIDAsync(temp.SuggestionID.ToString()),
                     SuggestionStatus = statusList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionStatusID?.ToString())),
                     OwnerNotes = temp.OwnerNotes,
                     ApprovedForRelease = temp.ApprovedForRelease,
@@ -191,9 +193,11 @@ namespace SuggestionAppLibrary.DataAccess
             if (output == null)
             {
                 output = new List<SuggestionModel>();
-                var suggestions =  await _connection.QueryAsync("CALL GetAllApprovedSuggestions()");
+                IEnumerable<dynamic> suggestions = null;
+                suggestions = (List<object>)await _connection.QueryAsync<List<Object>>("CALL GetAllApprovedSuggestions()") ;
                 foreach (var temp in suggestions)
                 {
+                    
                     SuggestionModel sugg = new()
                     {
                         Id = temp.SuggestionID.ToString(),
@@ -202,7 +206,7 @@ namespace SuggestionAppLibrary.DataAccess
                         DateCreated = temp.DateCreated,
                         Category = categoryList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionCategoryID?.ToString())),
                         Author = userList.FirstOrDefault(x => x.Id.Equals(temp.AuthorID?.ToString())),
-                        UserVotes = temp.UserVotes,
+                        UserVotes = await this.getUpvotesBySuggestionIDAsync(temp.SuggestionID.ToString()),
                         SuggestionStatus = statusList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionStatusID?.ToString())),
                         OwnerNotes = temp.OwnerNotes,
                         ApprovedForRelease = temp.ApprovedForRelease,
@@ -239,13 +243,14 @@ namespace SuggestionAppLibrary.DataAccess
                     DateCreated = temp.DateCreated,
                     Category = categoryList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionCategoryID?.ToString())),
                     Author = userList.FirstOrDefault(x => x.Id.Equals(temp.AuthorID?.ToString())),
-                    UserVotes = temp.UserVotes,
+                    UserVotes = await this.getUpvotesBySuggestionIDAsync(temp.SuggestionID.ToString()),
                     SuggestionStatus = statusList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionStatusID?.ToString())),
                     OwnerNotes = temp.OwnerNotes,
                     ApprovedForRelease = temp.ApprovedForRelease,
                     Archived = temp.Archived,
                     Rejected = temp.Rejected
                 };
+                
             }
 
             return output;
@@ -272,7 +277,7 @@ namespace SuggestionAppLibrary.DataAccess
                         DateCreated = temp.DateCreated,
                         Category = categoryList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionCategoryID?.ToString())),
                         Author = userList.FirstOrDefault(x => x.Id.Equals(temp.AuthorID?.ToString())),
-                        UserVotes = temp.UserVotes,
+                        UserVotes = await this.getUpvotesBySuggestionIDAsync(temp.SuggestionID.ToString()),
                         SuggestionStatus = statusList.FirstOrDefault(x => x.Id.Equals(temp.SuggestionStatusID?.ToString())),
                         OwnerNotes = temp.OwnerNotes,
                         ApprovedForRelease = temp.ApprovedForRelease,
@@ -336,6 +341,52 @@ namespace SuggestionAppLibrary.DataAccess
                     @nRejected = suggestion.Rejected,
                     }
                 );
+        }
+
+        public async Task<List<UserVotesModel>> getUpvotesBySuggestionIDAsync(string id)
+        {
+            List<UserVotesModel> output = new List<UserVotesModel>();
+
+            var temp = await _connection.QueryAsync("CALL getUpvotesBySuggestionID(@nSuggestionID)",
+                new
+                {
+                    @nSuggestionID = Int32.Parse(id)
+                }
+            );
+
+            foreach (var item in temp)
+            {
+                UserVotesModel suggestion = new()
+                {
+                    UserID = item.UserID.ToString(),
+                    SuggestionID = item.UpvoteSuggestionID.ToString()
+                };
+                output.Add(suggestion);
+            }
+            return output;
+        }
+
+        public List<UserVotesModel> getUpvotesBySuggestionID(string id)
+        {
+            List<UserVotesModel> output = new List<UserVotesModel>();
+
+            var temp = _connection.Query("CALL getUpvotesBySuggestionID(@nSuggestionID)",
+                new
+                {
+                    @nSuggestionID = Int32.Parse(id)
+                }
+            );
+
+            foreach (var item in temp)
+            {
+                UserVotesModel suggestion = new()
+                {
+                    UserID = item.UserID.ToString(),
+                    SuggestionID = item.UpvoteSuggestionID.ToString()
+                };
+                output.Add(suggestion);
+            }
+            return output;
         }
     }
 }
